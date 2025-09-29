@@ -1,0 +1,17 @@
+{
+  "name": "multitable",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "build-bundle": "npx esbuild src/lib.ts --bundle --outfile=dist/bundle/multitable.js --format=iife --global-name=MultiTable",
+    "build-lib": "npx tsc -p tsconfig.bundle.json"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3",
+    "vite": "^7.1.7"
+  }
+}
