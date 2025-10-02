@@ -11,6 +11,9 @@ export function createMultitableWithSchemas(
         schema: leftSchema,
         handleRemoveItem: true,
         handleAppendItem: true,
+        actions: {
+            visible: true,
+        },
         footerConfig: {
             personalized: false,
             defaultButtonText: "Delete kit",

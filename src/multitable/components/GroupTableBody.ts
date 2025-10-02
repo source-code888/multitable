@@ -1,5 +1,7 @@
-import type {GroupItemRow, InnerItem} from "../interfaces/interfaces";
+import type {GroupItemRow, InnerItem, TableActionsConfiguration} from "../interfaces/interfaces";
 import type {Schema} from "../types/types";
+import {deleteButton} from "./DeleteButton.ts";
+import {appendButton} from "./AppendButton.ts";
 
 export class GroupTableBody {
     private readonly body: HTMLDivElement;
@@ -10,12 +12,14 @@ export class GroupTableBody {
     private readonly handleAppendItem: boolean;
     private readonly callBackWhenRemoved?: () => void;
     private readonly callBackWhenAppend?: () => void;
+    private readonly actions: TableActionsConfiguration;
 
     public constructor(
         schema: Schema,
         cellWidth: string,
         handleRemoveItem: boolean,
         handleAppendItem: boolean,
+        actions: TableActionsConfiguration,
         callBackWhenRemoved?: () => void,
         callBackWhenAppend?: () => void,
     ) {
@@ -25,6 +29,7 @@ export class GroupTableBody {
         this.cellWidth = cellWidth;
         this.handleRemoveItem = handleRemoveItem;
         this.handleAppendItem = handleAppendItem;
+        this.actions = actions;
         this.callBackWhenRemoved = callBackWhenRemoved;
         this.callBackWhenAppend = callBackWhenAppend;
     }
@@ -66,16 +71,18 @@ export class GroupTableBody {
             container.appendChild(textArea);
             row.appendChild(container);
         }
-        if (this.handleRemoveItem) {
+        if (this.actions.visible) {
             const container = document.createElement("div");
-            container.className = "mtb-r-container";
-            container.style.width = this.cellWidth;
-            const button = document.createElement("button");
-            button.className = "mtb-r-button";
-            button.textContent = "Delete";
-            button.onclick = () => this.removeSubItem(id, subItemId);
-            container.appendChild(button);
-            row.appendChild(container);
+            container.className = this.actions.className ? this.actions.className : 'mtb-r-container';
+            container.style.width = this.actions.width ? this.actions.width : this.cellWidth;
+            if (this.actions.height) container.style.height = this.actions.height;
+            if (this.actions.content) container.append(this.actions.content())
+            else {
+                const button: HTMLButtonElement = deleteButton();
+                button.onclick = () => this.removeSubItem(id, subItemId);
+                container.appendChild(button);
+                row.appendChild(container);
+            }
         }
         return row;
     }
@@ -91,16 +98,14 @@ export class GroupTableBody {
         container.appendChild(row);
         container.appendChild(footer);
         this.body.appendChild(container);
-        const button: HTMLButtonElement = document.createElement("button");
+        const button: HTMLButtonElement = appendButton();
+        button.style.width = '100%';
         footer.appendChild(button);
-        button.className = 'mtb-r-button';
-        button.textContent = "Add item";
         button.onclick = () => {
             const item: HTMLDivElement = this.getRowInputs(id);
             container.insertBefore(item, footer);
             this.callBackWhenAppend?.()
         };
-        button.style.marginBottom = '3px';
     }
 
 

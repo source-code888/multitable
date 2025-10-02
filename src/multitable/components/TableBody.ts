@@ -1,5 +1,6 @@
-import type {ItemRow} from "../interfaces/interfaces";
+import type {ItemRow, TableActionsConfiguration} from "../interfaces/interfaces";
 import type {HandleOnInputEventTxtArea, RowEntry, Schema} from "../types/types";
+import {deleteButton} from "./DeleteButton.ts";
 
 export class TableBody {
     private rows: ItemRow = {};
@@ -9,6 +10,7 @@ export class TableBody {
     private readonly handleRemoveItem: boolean;
     private readonly handleAppendItem: boolean;
     private readonly body: HTMLDivElement;
+    private readonly actions: TableActionsConfiguration;
     private readonly callBackWhenAppend?: () => void;
     private readonly callBackWhenRemoved?: () => void;
     private lastRemoved: number = -1;
@@ -19,8 +21,9 @@ export class TableBody {
         cellWidth: string,
         handleRemoveItem: boolean,
         handleAppendItem: boolean,
+        actions: TableActionsConfiguration,
         callBackWhenAppend?: () => void,
-        callBackWhenRemoved?: () => void,
+        callBackWhenRemoved?: () => void
     ) {
         this.schema = schema;
         this.cellWidth = cellWidth;
@@ -30,6 +33,7 @@ export class TableBody {
         this.body.className = 'multitable-body';
         this.callBackWhenAppend = callBackWhenAppend;
         this.callBackWhenRemoved = callBackWhenRemoved;
+        this.actions = actions;
     }
 
     public appendRow() {
@@ -41,8 +45,9 @@ export class TableBody {
         row.setAttribute("data-item-id", id.toString());
         for (const key in this.schema) {
             const container = document.createElement("div");
-            container.className = "mtb-r-container";
-            container.style.width = this.cellWidth;
+            container.className = this.schema[key].className ? this.schema[key].className : "mtb-r-container";
+            container.style.width = this.schema[key].width ? this.schema[key].width : this.cellWidth;
+            if (this.schema[key].height) container.style.height = this.schema[key].height;
             const textArea = document.createElement("textarea");
             textArea.className = 'mtb-r-input-cell'
             textArea.setAttribute("data-item-id", id.toString());
@@ -60,15 +65,17 @@ export class TableBody {
             container.appendChild(textArea);
             row.appendChild(container);
         }
-        if (this.handleRemoveItem) {
-            const container = document.createElement("div");
-            container.className = "mtb-r-container";
-            container.style.width = this.cellWidth;
-            const button = document.createElement("button");
-            button.className = "mtb-r-button";
-            button.textContent = "Delete";
-            button.onclick = () => this.removeRow(id);
-            container.appendChild(button);
+        if (this.actions.visible) {
+            const container: HTMLDivElement = document.createElement("div");
+            container.className = this.actions.className ? this.actions.className : 'mtb-r-container';
+            container.style.width = this.actions.width ? this.actions.width : this.cellWidth;
+            if (this.actions.height) container.style.height = this.actions.height;
+            if (this.actions.content) container.appendChild(this.actions.content());
+            else {
+                const button: HTMLButtonElement = deleteButton();
+                button.onclick = () => this.removeRow(id);
+                container.appendChild(button);
+            }
             row.appendChild(container);
         }
         this.body.appendChild(row);

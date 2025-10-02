@@ -1,27 +1,65 @@
 * {
     margin: 0;
     padding: 0;
+    font-family: 'Montserrat', Arial;
 }
+
+.material-symbols-outlined {
+    font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+}
+
+
 body {
     padding: 5px;
 }
+
 .multitable-header {
     display: flex;
     flex: 1;
     flex-direction: row;
     width: 100%;
-    background-color: #aaa;
-    height: 30px;
-    line-height: 30px;
+    height: max-content;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background: linear-gradient(to right,  #ffff 0%, #f8f8f8, #ffff 100%);
+    box-shadow: 0 -0.02rem 0rem gray inset;
+    margin-bottom: 5px;
+}
+
+.multitable {
+    display: flex;
+    flex: 1;
+    width: 99%;
+    gap: 2%;
+    height: max-content;
+    margin-top: 30px;
+    padding: 5px;
+}
+
+.multitable-child {
+    display: inline-block;
+    margin-top: 20px;
+    width: 48%;
+    height: 100%;
+    border-radius: 5px;
+    background-color: #ffff;
+    padding-left: 5px;
+    padding-right: 5px;
+    box-shadow: 0 0 0.5rem gray;
 }
 
 .mtb-h-itm {
     display: block;
-    height: 30px;
-    line-height: 30px;
-    color: black;
+    height: max-content;
     text-align: center;
-    border-right: 1px solid black;
+    padding-left: 1px;
+    color: #444;
+    font-weight: bold;
+    overflow-wrap: break-word;
 }
 
 .mtb-h-itm:last-child {
@@ -31,15 +69,24 @@ body {
 .mtb-row {
     display: flex;
     flex-direction: row;
-    height: auto;
-    border: 1px solid #ccc;
+    height: 35px;
+    background-color: #ffff;
+    border-radius: 5px 5px 1px 1px;
     padding: 0;
+    margin-top: 0;
+    margin-bottom: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 3px;
+    gap: 0;
 }
 
 .mtb-r-container {
-    display: block;
+    display: flex;
     height: 100%;
-    border-right: 1px solid black;
+    align-items: center;
+    box-shadow: 0 0 0.08em gray;
+    justify-content: center;
 }
 
 .mtb-r-container:last-child {
@@ -47,51 +94,77 @@ body {
 }
 
 .mtb-r-input-cell {
-    outline: none;
-    resize: none;
     display: block;
     width: 95%;
-    border: none;
     height: 100%;
+    outline: none;
+    resize: none;
+    border: none;
+    background: none;
+    text-align: center;
+    align-content: center;
+}
+
+.mtb-r-button, .mtb-r-button-delete, .mtb-r-button-append {
+    display: block;
+    width: 90%;
+    height: 30px;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 300ms ease-in-out;
 }
 
 .mtb-r-button {
-    display: block;
-    width: 90%;
-    background-color: green;
-    border: greenyellow;
-    padding: 5px;
+    background: #79bcff linear-gradient(to bottom, #79bcff 5%, #6da8e3 100%);
+    color: #ffff;
+}
+
+.mtb-r-button-delete, .mtb-r-button-append {
+    background-color: transparent;
+    color: black;
+}
+
+.mtb-r-button-append {
+    box-shadow: 0 0 0.08rem gray;
+    background: #f8f8f8;
+    padding-top: 3px;
+    padding-bottom: 5px;
+}
+
+.mtb-r-button-delete:hover {
+    background-color: red;
+}
+
+.mtb-r-button-delete:hover .delete-icon {
     color: white;
-    margin-top: 3px;
-    margin-left: 3px;
 }
 
-.multitable {
-    display: flex;
-    flex: 1;
-    flex-direction: row;
-    width: 100%;
-    gap: 2%;
-    height: max-content;
+.mtb-r-button-append:hover {
+    background: green;
 }
 
-.multitable-child {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    width: 48%;
-    height: fit-content;
+.mtb-r-button-append:hover .append-icon {
+    color: white;
+}
+
+.append-icon {
+    color: green;
+}
+
+.delete-icon {
+    color: red;
 }
 
 .mtb-footer {
     display: flex;
     flex: 1;
     flex-direction: column;
-    background-color: antiquewhite;
-    border: 1px solid black;
-    justify-content: center;
+    width: 100%;
     height: 40px;
-    padding-bottom: 5px;
+    align-content: center;
 }
 
 .error {
@@ -101,7 +174,9 @@ body {
 .mtb-row-footer {
     display: flex;
     flex-direction: row;
-    height: 30px;
-    border: 1px solid black;
     justify-content: space-between;
+    height: 30px;
+    margin-bottom: 10px;
+    padding-left: 3px;
 }
+

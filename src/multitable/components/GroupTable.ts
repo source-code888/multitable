@@ -11,12 +11,6 @@ export class GroupTable extends Table {
             config.footerConfig.personalized = true;
             config.footerConfig.contentIfPersonalized = () => {
                 const content = document.createElement('div');
-                const heading = document.createElement('h6');
-                heading.textContent = 'Personalize your footer.';
-                heading.style.height = '30px';
-                heading.style.lineHeight = '30px';
-                heading.style.display = 'block';
-                content.append(heading);
                 content.style.height = 'fit-content';
                 content.style.width = '100%';
                 content.style.maxHeight = '30px';
@@ -31,6 +25,7 @@ export class GroupTable extends Table {
             this.cellWidth,
             this.handleRemoveItem,
             this.handleAppendItem,
+            this.actions,
             this.callBackWhenRemoved,
             this.callBackWhenAppend
         );
@@ -52,7 +47,10 @@ export class GroupTable extends Table {
     render(): HTMLElement {
         const container: HTMLElement = document.createElement("div");
         const footer: HTMLElement = this.getFooter();
-        container.className = "multitable-child";
+        container.className = this.className ? this.className : "multitable-child";
+        if (this.width) container.style.width = this.width;
+        if (this.height) container.style.height = this.height;
+        if (this.id) container.setAttribute("id", this.id);
         container.append(this.getHeader())
         container.append(this.groupBody.getBody());
         container.append(footer);

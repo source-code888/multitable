@@ -6,6 +6,9 @@ export interface Entry {
     regex: RegExp;
     calculateWith?: string[];
     editable: boolean;
+    className?: string;
+    width?: string;
+    height?: string;
 }
 
 export interface ItemRow {
@@ -22,8 +25,17 @@ export interface GroupItemRow {
 
 export interface TableFooterConfiguration {
     personalized: boolean;
-    defaultButtonText: string;
+    defaultButtonText?: string;
     contentIfPersonalized?: () => HTMLElement;
+}
+
+export interface TableActionsConfiguration {
+    visible: boolean;
+    width?: string;
+    height?: string;
+    className?: string;
+    content?: () => HTMLElement;
+    title?: string;
 }
 
 export interface TableConfiguration {
@@ -33,6 +45,11 @@ export interface TableConfiguration {
     footerConfig: TableFooterConfiguration;
     callBackWhenRemoved?: () => void;
     callBackWhenAppend?: () => void;
+    actions: TableActionsConfiguration;
+    width?: string;
+    height?: string;
+    className?: string;
+    id?: string;
 }
 
 export interface Configuration {
