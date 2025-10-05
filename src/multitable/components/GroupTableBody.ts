@@ -1,7 +1,8 @@
 import type {GroupItemRow, InnerItem, TableActionsConfiguration} from "../interfaces/interfaces";
-import type {Schema} from "../types/types";
+import type {HTMLInput, Schema} from "../types/types";
 import {deleteButton} from "./DeleteButton.ts";
 import {appendButton} from "./AppendButton.ts";
+import {validateInput} from "../utils/utils.ts";
 
 export class GroupTableBody {
     private readonly body: HTMLDivElement;
@@ -57,18 +58,28 @@ export class GroupTableBody {
         row.setAttribute('data-sub-item-id', subItemId.toString());
         for (const key in this.schema) {
             const container: HTMLDivElement = document.createElement("div");
-            container.className = 'mtb-r-container';
-            container.style.width = this.cellWidth;
-            const textArea: HTMLTextAreaElement = document.createElement("textarea");
-            textArea.className = 'mtb-r-input-cell';
-            textArea.setAttribute('data-sub-item-id', subItemId.toString());
-            textArea.setAttribute('name', `item-${id}-${key}-${subItemId}`);
-            if (this.schema[key].calculated) {
-                textArea.textContent = '0';
-                textArea.disabled = true;
+            container.style.width = this.schema[key].width ? this.schema[key].width : this.cellWidth;
+            if (!this.schema[key].visible) container.style.display = 'none';
+            if (this.schema[key].height) container.style.height = this.schema[key].height;
+            let formElement: HTMLInput | HTMLSelectElement;
+            if (this.schema[key].formElement) {
+                const [input] = this.schema[key].formElement();
+                formElement = input;
+            } else {
+                formElement = document.createElement('textarea');
             }
-            textArea.oninput = () => this.handleOnInput(textArea, id, subItemId, key, this.schema[key].regex);
-            container.appendChild(textArea);
+            formElement.className = 'mtb-r-input-cell';
+            formElement.setAttribute('data-sub-item-id', subItemId.toString());
+            formElement.setAttribute('name', `item-${id}-${key}-${subItemId}`);
+            formElement.disabled = this.schema[key].disabled || this.schema[key].calculated;
+            container.className = this.schema[key].className ? this.schema[key].className : 'mtb-r-container';
+            if (formElement instanceof HTMLInputElement || formElement instanceof HTMLTextAreaElement) {
+                if (this.schema[key].calculated) {
+                    formElement.textContent = '0';
+                }
+                formElement.oninput = () => this.handleOnInput(formElement, id, subItemId, key, this.schema[key].regex);
+            }
+            container.appendChild(formElement);
             row.appendChild(container);
         }
         if (this.actions.visible) {
@@ -108,22 +119,9 @@ export class GroupTableBody {
         };
     }
 
-
-    public handleOnInput(input: HTMLTextAreaElement, itemId: number, subId: number, key: string, regex?: RegExp,) {
-        if (!this.validateInput(input, regex)) return;
+    public handleOnInput(input: HTMLInput, itemId: number, subId: number, key: string, regex?: RegExp,) {
+        if (regex && !validateInput(input, regex)) return;
         this.rows[itemId][subId][key] = input.value;
-    }
-
-    private validateInput(input: HTMLTextAreaElement, regex?: RegExp): boolean {
-        if (regex && !regex.test(input.value)) {
-            input.classList.add("error");
-            input.parentElement?.classList.add("error");
-            return false;
-        } else if (input.classList.contains("error")) {
-            input.classList.remove("error");
-            input.parentElement?.classList.remove("error");
-        }
-        return true;
     }
 
     public removeRow(id: number) {

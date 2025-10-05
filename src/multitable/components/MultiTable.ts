@@ -3,23 +3,24 @@ import {Table} from "./Table";
 import {GroupTable} from "./GroupTable";
 
 export class MultiTable {
-
+    private target: string;
     private leftTable: Table;
     private rightTable: GroupTable;
 
-    public constructor({leftConfig, rightConfig}: Configuration) {
+    public constructor({target, leftConfig, rightConfig}: Configuration) {
+        this.target = target;
         leftConfig.callBackWhenAppend = () => {
             this.appendToRight();
             if (this.rightTable.getEachRowHeight)
                 this.leftTable.setEachRowHeight?.(this.rightTable.getEachRowHeight());
         }
         leftConfig.callBackWhenRemoved = () => this.removeToLeft();
-        rightConfig.callBackWhenAppend = () =>  {
-            if (this.rightTable.getEachRowHeight){
+        rightConfig.callBackWhenAppend = () => {
+            if (this.rightTable.getEachRowHeight) {
                 this.leftTable.setEachRowHeight?.(this.rightTable.getEachRowHeight())
             }
         }
-        rightConfig.callBackWhenRemoved = () =>  {
+        rightConfig.callBackWhenRemoved = () => {
             if (this.rightTable.getEachRowHeight)
                 this.leftTable.setEachRowHeight?.(this.rightTable.getEachRowHeight())
         }
@@ -35,11 +36,14 @@ export class MultiTable {
         this.rightTable.removeRow(this.leftTable.callLastRemove())
     }
 
-    public render(): HTMLElement {
+    public render(): void {
         const container: HTMLElement = document.createElement("div");
         container.className = "multitable";
         container.append(this.leftTable.render());
         container.append(this.rightTable.render());
-        return container;
+        document.querySelector<HTMLElement>(this.target)?.replaceWith(container);
+        const height = Math.max(this.leftTable.getHeaderHeight(), this.rightTable.getHeaderHeight());
+        this.leftTable.setHeaderHeight(height);
+        this.rightTable.setHeaderHeight(height);
     }
 }

@@ -46,14 +46,15 @@ export class GroupTable extends Table {
 
     render(): HTMLElement {
         const container: HTMLElement = document.createElement("div");
-        const footer: HTMLElement = this.getFooter();
+        this.createHeader();
+        this.createFooter();
         container.className = this.className ? this.className : "multitable-child";
         if (this.width) container.style.width = this.width;
         if (this.height) container.style.height = this.height;
         if (this.id) container.setAttribute("id", this.id);
-        container.append(this.getHeader())
+        container.append(this.header!);
         container.append(this.groupBody.getBody());
-        container.append(footer);
+        container.append(this.footer!);
         return container;
     }
 

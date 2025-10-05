@@ -1,14 +1,15 @@
-import type {RowEntry, Schema} from "../types/types";
-
+import type {HTMLInput, RowEntry, Schema} from "../types/types";
 export interface Entry {
     title: string;
     calculated: boolean;
-    regex: RegExp;
+    regex?: RegExp;
     calculateWith?: string[];
-    editable: boolean;
+    disabled: boolean;
     className?: string;
     width?: string;
     height?: string;
+    formElement?: () => [HTMLInput | HTMLSelectElement, () => void];
+    visible: boolean;
 }
 
 export interface ItemRow {
@@ -53,6 +54,7 @@ export interface TableConfiguration {
 }
 
 export interface Configuration {
+    target: string;
     leftConfig: TableConfiguration;
     rightConfig: TableConfiguration;
 }

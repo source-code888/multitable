@@ -21,8 +21,8 @@ export function createMultitableWithSchemas(
     }
     const rightConfig: TableConfiguration = structuredClone(leftConfig);
     rightConfig.schema = rightSchema;
-    const multiTable: MultiTable = new MultiTable({leftConfig, rightConfig});
-    document.querySelector<HTMLDivElement>(target)?.replaceWith(multiTable.render())
+    const multiTable: MultiTable = new MultiTable({target, leftConfig, rightConfig});
+    multiTable.render();
 }
 
 export function createMultitableWithConfigs(
@@ -30,6 +30,6 @@ export function createMultitableWithConfigs(
     leftConfig: TableConfiguration,
     rightConfig: TableConfiguration,
 ) {
-    const multiTable: MultiTable = new MultiTable({leftConfig, rightConfig});
-    document.querySelector<HTMLDivElement>(target)?.replaceWith(multiTable.render())
+    const multiTable: MultiTable = new MultiTable({target, leftConfig, rightConfig});
+    multiTable.render();
 }

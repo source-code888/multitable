@@ -14,6 +14,8 @@ export class Table {
     protected readonly width?: string;
     protected readonly height?: string;
     protected readonly actions: TableActionsConfiguration;
+    protected header?: HTMLDivElement;
+    protected footer?: HTMLDivElement;
     protected getLastAppend?: () => number;
     protected getLastRemove?: () => number;
     protected callBackWhenAppend?: () => void;
@@ -52,41 +54,39 @@ export class Table {
         this.callBackWhenRemoved = callBackWhenRemoved;
     }
 
-    protected getHeader(): HTMLElement {
-        const header = document.createElement("div");
-        header.className = "multitable-header";
+    protected createHeader(): void {
+        this.header = document.createElement("div");
+        this.header.className = "multitable-header";
         for (const key in this.schema) {
             const child: HTMLElement = document.createElement("div");
-            child.textContent = this.schema[key].title;
+            child.textContent = this.schema[key].title.toUpperCase();
             child.style.width = this.schema[key].width ? this.schema[key].width : this.cellWidth;
             if (this.schema[key].height) child.style.height = this.schema[key].height;
-            child.className = this.schema[key].className ? this.schema[key].className : "mtb-h-itm";
-
-            header.appendChild(child)
+            child.className = "mtb-h-itm";
+            if (!this.schema[key].visible) child.style.display = 'none';
+            this.header.appendChild(child);
         }
         if (this.actions.visible) {
             const actions = document.createElement("div");
-            actions.className = this.actions.className ? this.actions.className : "mtb-h-itm";
+            actions.className = "mtb-h-itm";
             actions.style.width = this.actions.width ? this.actions.width : this.cellWidth;
             if (this.actions.height) actions.style.height = this.actions.height;
-            actions.textContent = this.actions.title ? this.actions.title : 'Actions';
-            header.appendChild(actions);
+            actions.textContent = this.actions.title ? this.actions.title.toUpperCase() : 'ACTIONS';
+            this.header.appendChild(actions);
         }
-        return header
     }
 
-    protected getFooter(): HTMLElement {
-        const footer = document.createElement("div");
-        footer.className = "mtb-footer";
+    protected createFooter(): void {
+        this.footer = document.createElement("div");
+        this.footer.className = "mtb-footer";
         if (this.footerConfig.personalized && this.footerConfig.contentIfPersonalized) {
-            footer.append(this.footerConfig.contentIfPersonalized());
+            this.footer.append(this.footerConfig.contentIfPersonalized());
         } else {
             const button = appendButton();
             button.style.width = '100%';
             button.setAttribute('id', 'appendItem')
-            footer.appendChild(button);
+            this.footer.appendChild(button);
         }
-        return footer
     }
 
     public callLastAppend(): number {
@@ -103,6 +103,24 @@ export class Table {
         return -1;
     }
 
+    public getHeaderHeight(): number {
+        return this.header ? this.header.clientHeight : 0;
+    }
+
+    public setHeaderHeight(height: number): void {
+        if (this.header)
+            this.header.style.height = `${height}px`;
+    }
+
+    public getFooterHeight(): number {
+        return this.footer ? this.footer.clientHeight : 0;
+    }
+
+    public setFooterHeight(height: number): void {
+        if (this.footer)
+            this.footer.style.height = `${height}px`;
+    }
+
 
     public render(): HTMLElement {
         const tableBody: TableBody = new TableBody(
@@ -114,6 +132,8 @@ export class Table {
             this.callBackWhenAppend,
             this.callBackWhenRemoved
         );
+        this.createHeader();
+        this.createFooter();
         this.getLastAppend = () => tableBody.getLastAppend();
         this.getLastRemove = () => tableBody.getLastRemoved();
         this.getBodyHeight = () => tableBody.getBodyHeight();
@@ -121,16 +141,15 @@ export class Table {
         this.setEachRowHeight = (values: number[]) => tableBody.setEachRowHeight(values);
         this.getEachRowHeight = () => tableBody.getEachRowHeight();
         const container: HTMLElement = document.createElement("div");
-        const footer: HTMLElement = this.getFooter();
         container.className = this.className ? this.className : "multitable-child";
         if (this.id) container.id = this.id;
         if (this.width) container.style.width = this.width;
         if (this.height) container.style.height = this.height;
-        container.append(this.getHeader())
+        container.append(this.header!);
         container.append(tableBody.getBody());
-        container.append(footer);
+        container.append(this.footer!);
         if (!this.footerConfig.personalized) {
-            const button: HTMLButtonElement | null = footer.querySelector('#appendItem');
+            const button: HTMLButtonElement | null = this.footer!.querySelector('#appendItem');
             if (button) button.onclick = () => tableBody.appendRow()
         }
         return container;

@@ -1,6 +1,7 @@
 import type {ItemRow, TableActionsConfiguration} from "../interfaces/interfaces";
-import type {HandleOnInputEventTxtArea, RowEntry, Schema} from "../types/types";
+import type {HandleOnInputEventProps, HTMLInput, RowEntry, Schema} from "../types/types";
 import {deleteButton} from "./DeleteButton.ts";
+import {validateInput} from "../utils/utils.ts";
 
 export class TableBody {
     private rows: ItemRow = {};
@@ -48,21 +49,25 @@ export class TableBody {
             container.className = this.schema[key].className ? this.schema[key].className : "mtb-r-container";
             container.style.width = this.schema[key].width ? this.schema[key].width : this.cellWidth;
             if (this.schema[key].height) container.style.height = this.schema[key].height;
-            const textArea = document.createElement("textarea");
-            textArea.className = 'mtb-r-input-cell'
-            textArea.setAttribute("data-item-id", id.toString());
-            textArea.setAttribute('name', `${key}-${id}`)
-            const onValidate: HandleOnInputEventTxtArea = {
-                key, id, input: textArea, regex: this.schema[key].regex,
-            };
-            textArea.oninput = () => this.handleOnInput(onValidate);
-            textArea.onchange = () => this.handleOnInput(onValidate);
-            textArea.onpaste = () => this.handleOnInput(onValidate);
-            if (this.schema[key].calculated) {
-                textArea.textContent = '0'
-                textArea.disabled = true;
+            if (!this.schema[key].visible) container.style.display = 'none';
+            let formElement: HTMLInput | HTMLSelectElement;
+            if (this.schema[key].formElement) {
+                const [input] = this.schema[key].formElement();
+                formElement = input;
+            } else{
+                formElement = document.createElement('textarea');
             }
-            container.appendChild(textArea);
+            formElement.className = 'mtb-r-input-cell';
+            formElement.setAttribute("data-item-id", id.toString());
+            formElement.setAttribute('name', `${key}-${id}`)
+            formElement.disabled = this.schema[key].disabled || this.schema[key].calculated;
+            if (formElement instanceof HTMLInputElement || formElement instanceof HTMLTextAreaElement) {
+                if (this.schema[key].calculated) {
+                    formElement.textContent = '0';
+                }
+                formElement.oninput = () => this.handleOnInput({input: formElement, key, id, regex: this.schema[key].regex});
+            }
+            container.appendChild(formElement);
             row.appendChild(container);
         }
         if (this.actions.visible) {
@@ -83,9 +88,9 @@ export class TableBody {
         this.callBackWhenAppend?.()
     }
 
-    private handleOnInput({input, key, regex, id: itemId}: HandleOnInputEventTxtArea) {
+    private handleOnInput({input, key, regex, id: itemId}: HandleOnInputEventProps) {
         const value = input.value;
-        if (!this.validateInput(input, regex)) return;
+        if (regex && !validateInput(input, regex)) return;
         if (!this.rows[itemId]) {
             const item: RowEntry<string | number> = {};
             item[key] = value;
@@ -101,18 +106,6 @@ export class TableBody {
 
     public setBodyHeight(value: number) {
         this.body.style.height = `${value}px`;
-    }
-
-    private validateInput(input: HTMLTextAreaElement, regex?: RegExp): boolean {
-        if (regex && !regex.test(input.value)) {
-            input.classList.add("error");
-            input.parentElement?.classList.add("error");
-            return false;
-        } else if (input.classList.contains("error")) {
-            input.classList.remove("error");
-            input.parentElement?.classList.remove("error");
-        }
-        return true;
     }
 
     public removeRow(itemId: number): void {
